@@ -4,12 +4,11 @@
     "module": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./e2e",
+    "baseUrl": "./e2e/tests",
     "types": ["node", "@playwright/test"],
     "paths": {
-      "@fixtures/*": ["fixtures/*"],
-      "@tests/*": ["tests/*"],
-      "@utilities/*": ["utilities/*"],
+      "@auth/*": ["auth/*"],
+      "@/*": ["../*"]
     },
   },
   "include": ["./e2e/**/*.ts"],
