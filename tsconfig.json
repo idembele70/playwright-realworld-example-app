@@ -8,9 +8,10 @@
     "types": ["node", "@playwright/test"],
     "paths": {
       "@auth/*": ["auth/*"],
-      "@/*": ["../*"]
+      "@config/*": ["../config/*"],
+      "@shared/*": ["../shared/*"],
     },
   },
-  "include": ["./e2e/**/*.ts"],
+  "include": ["./e2e/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules"]
 }

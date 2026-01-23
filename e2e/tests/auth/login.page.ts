@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { HeaderComponent } from "@/shared/layouts/header.component";
+import { HeaderComponent } from "@shared/layouts/header.component";
 import { User } from "./auth.model";
 
 export class LoginPage {
@@ -23,11 +23,11 @@ export class LoginPage {
     this.emailInput = this.container.getByPlaceholder('Email', { exact: true });
     this.passwordInput = this.container.getByPlaceholder('Password', { exact: true });
     this.submitButton = this.container.getByRole('button', { name: 'Sign in', exact: true });
-    this.errorMessages = this.container.getByRole('list')
+    this.errorMessages = this.container.getByRole('list');
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/login');
+    await this.page.goto('login');
   }
 
   async login(user: User): Promise<void> {

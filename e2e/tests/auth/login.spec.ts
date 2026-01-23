@@ -1,3 +1,4 @@
+import { FRONT_BASE_PATHNAME } from "@config/env.config";
 import { expect, loginTest } from "./fixtures/login.fixture";
 
 loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
@@ -19,7 +20,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.login(user);
       await loginPage.expectLoginSuccess();
       await loginPage.goto();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL(FRONT_BASE_PATHNAME);
     });
   });
 
@@ -47,7 +48,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.expectLoginSuccess();
 
       await page.goto('/')
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL(FRONT_BASE_PATHNAME);
 
       await page.route('**/api/user', async route => {
         route.fulfill({
@@ -69,7 +70,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
         await route.continue();
       });
       await loginPage.login({ ...user, password: 'Wr0ng-_P@ssw0rd!?' });
-      await loginPage.submitButton.dblclick();
+      await loginPage.submitButton.dblclick({ force: true});
 
       expect.poll(() => loginRequestCount).toBe(1);
     });

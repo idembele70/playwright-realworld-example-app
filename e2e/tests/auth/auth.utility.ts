@@ -1,10 +1,11 @@
 import { request } from "@playwright/test";
 import { User } from "./auth.model";
+import { ENV, ENV_CONFIG } from "@config/env.config";
 
 export class AuthUtility {
   static async createAccount(user: User): Promise<string | undefined> {
     const apiContext = await request.newContext({
-      baseURL: 'http://localhost:3000/api/',
+      baseURL: ENV_CONFIG[ENV].baseURL.api,
       extraHTTPHeaders: {
         'Content-Type': 'application/json',
       },
@@ -26,7 +27,7 @@ export class AuthUtility {
 
   static async deleteAccount(token: string): Promise<void> {
     const apiContext = await request.newContext({
-      baseURL: 'http://localhost:3000/api/',
+      baseURL: ENV_CONFIG[ENV].baseURL.api,
       extraHTTPHeaders: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
