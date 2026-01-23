@@ -20,7 +20,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.login(user);
       await loginPage.expectLoginSuccess();
       await loginPage.goto();
-      await expect(page).toHaveURL(FRONT_BASE_PATHNAME + 'no');
+      await expect(page).toHaveURL(FRONT_BASE_PATHNAME);
     });
   });
 
