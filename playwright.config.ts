@@ -15,6 +15,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html', { outputFile: 'html-report.html', open: 'never' }],
+    process.env.CI ? ['github'] : null
   ],
   outputDir: 'test-results',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
