@@ -1,9 +1,9 @@
-import { FRONT_BASE_PATHNAME } from "@config/env.config";
+import { FRONT_URLS } from "@shared/utilities/url-front.utility";
 import { expect, loginTest } from "./fixtures/login.fixture";
 
 loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
 
-  loginTest.describe('Happy path', { tag: '@happy-path' }, () => {
+  loginTest.describe('Happy path', { tag: '@happy' }, () => {
     loginTest('Login user with valid credentials', { tag: '@smoke'}, async ({ loginPage, user }) => {
       await loginPage.login(user);
       await loginPage.expectLoginSuccess();
@@ -20,11 +20,11 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.login(user);
       await loginPage.expectLoginSuccess();
       await loginPage.goto();
-      await expect(page).toHaveURL(FRONT_BASE_PATHNAME);
+      await expect(page).toHaveURL(FRONT_URLS.HOME);
     });
   });
 
-  loginTest.describe('Negative path', { tag: '@negative-path' }, () => {
+  loginTest.describe('Negative path', { tag: '@negative' }, () => {
     loginTest('Login fails with an error message when password is incorrect', async ({ loginPage, user }) => {
       await loginPage.login({ ...user, password: 'WRONG-_P@ssW0rd123?!' });
       await loginPage.expectLoginError();
@@ -41,14 +41,14 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
     });
   });
 
-  loginTest.describe('Edge case', { tag: '@edge-case' }, () => {
+  loginTest.describe('Edge case', { tag: '@edge' }, () => {
     loginTest('User is logged out when authentication token is expired', async ({ loginPage, user, page }) => {
       loginTest.fixme(true, 'App crash when token is expired')
       await loginPage.login(user);
       await loginPage.expectLoginSuccess();
 
       await page.goto('/')
-      await expect(page).toHaveURL(FRONT_BASE_PATHNAME);
+      await expect(page).toHaveURL(FRONT_URLS.HOME);
 
       await page.route('**/api/user', async route => {
         route.fulfill({

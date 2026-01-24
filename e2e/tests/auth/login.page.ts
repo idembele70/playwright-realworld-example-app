@@ -1,9 +1,10 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
 import { User } from "./auth.model";
+import { FRONT_URLS } from "@shared/utilities/url-front.utility";
 
 export class LoginPage {
-  readonly urlRegExp = /login$/;
+  readonly urlRegExp = FRONT_URLS.LOGIN;
   readonly header: HeaderComponent;
 
   private readonly container: Locator;
