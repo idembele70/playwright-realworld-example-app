@@ -55,8 +55,12 @@ export class AuthUtility {
   }
 
   static async doesUserExists(user: User): Promise<boolean> {
-    const token = await this.login(user);
-    return !!token;
+    try {
+      const token = await this.login(user);
+      return !!token;
+    } catch {
+      return false;
+    }
   }
 
   private static async createApiContext(token?: string): Promise<APIRequestContext> {

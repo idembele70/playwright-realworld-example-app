@@ -16,28 +16,37 @@ registerTest.describe('Authentication - Register', { tag: '@auth' }, () => {
 
   registerTest.describe('Negative', { tag: '@negative' }, () => {
     registerTest('Register fails with existing username', async ({ registerPage, user }) => {
-      await AuthUtility.createAccount(user);
-      await registerPage.register({...user, email: 'unexisting-email@invalid.invalid' });
-      await registerPage.expectRegisterError(['username has already been taken']);
-      await AuthUtility.deleteUser(user);
+      try {
+        await AuthUtility.createAccount(user);
+        await registerPage.register({ ...user, email: 'unexisting-email@invalid.invalid' });
+        await registerPage.expectRegisterError(['username has already been taken']);
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
 
     registerTest('Register fails with existing email', async ({ registerPage, user }) => {
-      await AuthUtility.createAccount(user);
-      await registerPage.register({...user, username: 'unexisting-username' });
-      await registerPage.expectRegisterError(['email has already been taken']);
-      await AuthUtility.deleteUser(user);
+      try {
+        await AuthUtility.createAccount(user);
+        await registerPage.register({ ...user, username: 'unexisting-username' });
+        await registerPage.expectRegisterError(['email has already been taken']);
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
-    
+
     registerTest('Register fails with existing username & email', async ({ registerPage, user }) => {
-      await AuthUtility.createAccount(user);
-      await registerPage.register(user);
-      await registerPage.expectRegisterError(['email has already been taken', 'username has already been taken']);
-      await AuthUtility.deleteUser(user);
+      try {
+        await AuthUtility.createAccount(user);
+        await registerPage.register(user);
+        await registerPage.expectRegisterError(['email has already been taken', 'username has already been taken']);
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
 
     registerTest('Attempt to register without username', async ({ registerPage, user }) => {
-      await registerPage.fillForm({...user, username: '' });
+      await registerPage.fillForm({ ...user, username: '' });
       await registerPage.expectSubmitBtnDisabled();
     });
 
@@ -52,35 +61,40 @@ registerTest.describe('Authentication - Register', { tag: '@auth' }, () => {
     });
 
     registerTest('Authenticated user cannot access register page', async ({ registerPage, user }) => {
-      await registerPage.register(user);
-      await registerPage.expectRegisterSuccess();
-      await registerPage.goto();
-      await registerPage.expectPageToBeProtectedForAuthenticatedUsers();
-      await AuthUtility.deleteUser(user);
+      try {
+        await registerPage.register(user);
+        await registerPage.expectRegisterSuccess();
+        await registerPage.goto();
+        await registerPage.expectPageToBeProtectedForAuthenticatedUsers();
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
   });
 
-  registerTest.describe('Edge', { tag: '@edge'}, () => {
+  registerTest.describe('Edge', { tag: '@edge' }, () => {
+    registerTest.afterEach(async ({ user }) => {
+      await Promise.allSettled([
+        AuthUtility.deleteUser(user),
+        AuthUtility.deleteUser({ ...user, username: ` ${user.username}` }),
+        AuthUtility.deleteUser({ ...user, email: ` ${user.email}` }),
+        AuthUtility.deleteUser({ ...user, password: ` ${user.password}` }),
+      ]);
+    });
 
     registerTest('Register with leading space in the username', async ({ registerPage, user }) => {
-      const newUser = {...user, username: ` ${user.username}`};
-      await registerPage.register(newUser);
+      await registerPage.register({ ...user, username: ` ${user.username}` });
       await registerPage.expectRegisterSuccess();
-      await AuthUtility.deleteUser(newUser);
     });
 
     registerTest('Register with leading space in the email', async ({ registerPage, user }) => {
-      const newUser = {...user, email: ` ${user.email}`};
-      await registerPage.register(newUser);
+      await registerPage.register({ ...user, email: ` ${user.email}` });
       await registerPage.expectRegisterSuccess();
-      await AuthUtility.deleteUser(newUser);
     });
 
     registerTest('Register with leading space in the password', async ({ registerPage, user }) => {
-      const newUser = {...user, password: ` ${user.password}`};
-      await registerPage.register(newUser);
+      await registerPage.register({ ...user, password: ` ${user.password}` });
       await registerPage.expectRegisterSuccess();
-      await AuthUtility.deleteUser(newUser);
     });
-  })
+  });
 });

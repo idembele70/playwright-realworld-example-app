@@ -6,14 +6,14 @@ import { test as baseTest } from '@playwright/test';
 
 export const loginTest = baseTest.extend<{ loginPage: LoginPage; existingUser: User; newUser: User; }>({
   existingUser: [async ({}, use, workerInfo) => {
-    const id = AuthFactory.buildId('login-test', workerInfo.parallelIndex);
+    const id = AuthFactory.buildId('login-test-existing', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     const token = await AuthUtility.createAccount(user);
     await use(user);
     await AuthUtility.deleteAccount(token);
   }, { scope: 'test' }],
   newUser: [async ({}, use, workerInfo) => {
-    const id = AuthFactory.buildId('login-test', workerInfo.parallelIndex);
+    const id = AuthFactory.buildId('login-test-new', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     await use(user);
   }, { scope: 'test' }],

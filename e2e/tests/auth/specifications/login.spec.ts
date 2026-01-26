@@ -6,7 +6,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
 
   loginTest.describe('Happy', { tag: '@happy' }, () => {
 
-    loginTest('Login existingUser with valid credentials', { tag: '@smoke' }, async ({ loginPage, existingUser }) => {
+    loginTest('Login existing user with valid credentials', { tag: '@smoke' }, async ({ loginPage, existingUser }) => {
       await loginPage.login(existingUser);
       await loginPage.expectLoginSuccess();
     });
@@ -18,7 +18,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await expect(loginPage.header.profileLink).toBeVisible();
     });
 
-    loginTest('Authenticated existingUser cannot access login page', async ({ page, loginPage, existingUser }) => {
+    loginTest('Authenticated existing user cannot access login page', async ({ page, loginPage, existingUser }) => {
       await loginPage.login(existingUser);
       await loginPage.expectLoginSuccess();
       await loginPage.goto();
@@ -45,7 +45,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
   });
 
   loginTest.describe('Edge', { tag: '@edge' }, () => {
-    loginTest('existingUser is logged out when authentication token is expired', async ({ loginPage, existingUser, page }) => {
+    loginTest('existing user is logged out when authentication token is expired', async ({ loginPage, existingUser, page }) => {
       loginTest.fixme(true, 'App crash when token is expired')
       await loginPage.login(existingUser);
       await loginPage.expectLoginSuccess();
@@ -53,7 +53,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await page.goto('/')
       await expect(page).toHaveURL(FRONT_URLS.HOME);
 
-      await page.route('**/api/existingUser', async route => {
+      await page.route('**/api/user', async route => {
         route.fulfill({
           status: 401,
           contentType: 'application/json',
@@ -81,18 +81,24 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
 
     loginTest('Login successfully with special chars password', async ({ loginPage, newUser }) => {
       const user = { ...newUser, password: 'P@ssw0rd?!' };
-      await AuthUtility.createAccount(user);
-      await loginPage.login(user);
-      await loginPage.expectLoginSuccess();
-      await AuthUtility.deleteUser(user);
+      try {
+        await AuthUtility.createAccount(user);
+        await loginPage.login(user);
+        await loginPage.expectLoginSuccess();
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
     
     loginTest('Login successfully with spaces in password', async ({ loginPage, newUser }) => {
       const user = { ...newUser, password: ' password with spaces ' };
-      await AuthUtility.createAccount(user);
-      await loginPage.login(user);
-      await loginPage.expectLoginSuccess();
-      await AuthUtility.deleteUser(user);
+      try {
+        await AuthUtility.createAccount(user);
+        await loginPage.login(user);
+        await loginPage.expectLoginSuccess();
+      } finally {
+        await AuthUtility.deleteUser(user);
+      }
     });
   });
 });
