@@ -1,4 +1,4 @@
-import { FRONT_URLS } from "@shared/utilities/url-front.utility";
+import { FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 import { expect, loginTest } from "../fixtures/login.fixture";
 import { AuthUtility } from "@auth/auth.utility";
 
@@ -22,7 +22,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.login(existingUser);
       await loginPage.expectLoginSuccess();
       await loginPage.goto();
-      await expect(page).toHaveURL(FRONT_URLS.HOME);
+      await expect(page).toHaveURL(FRONT_URLS_REG_EXP.HOME);
     });
   });
 
@@ -51,7 +51,7 @@ loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {
       await loginPage.expectLoginSuccess();
 
       await page.goto('/')
-      await expect(page).toHaveURL(FRONT_URLS.HOME);
+      await expect(page).toHaveURL(FRONT_URLS_REG_EXP.HOME);
 
       await page.route('**/api/user', async route => {
         route.fulfill({

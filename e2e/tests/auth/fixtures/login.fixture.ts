@@ -3,17 +3,18 @@ import { User } from '@auth/auth.model';
 import { AuthUtility } from '@auth/auth.utility';
 import { LoginPage } from '@auth/pages/login.page';
 import { test as baseTest } from '@playwright/test';
+import { CompositeIdFactory } from '@shared/factories/composite-id.factory';
 
 export const loginTest = baseTest.extend<{ loginPage: LoginPage; existingUser: User; newUser: User; }>({
   existingUser: [async ({}, use, workerInfo) => {
-    const id = AuthFactory.buildId('login-test-existing', workerInfo.parallelIndex);
+    const id = CompositeIdFactory.create('login-test-existing', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     const token = await AuthUtility.createAccount(user);
     await use(user);
     await AuthUtility.deleteAccount(token);
   }, { scope: 'test' }],
   newUser: [async ({}, use, workerInfo) => {
-    const id = AuthFactory.buildId('login-test-new', workerInfo.parallelIndex);
+    const id = CompositeIdFactory.create('login-test-new', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     await use(user);
   }, { scope: 'test' }],
