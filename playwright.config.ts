@@ -16,6 +16,7 @@ export default defineConfig({
   reporter: [
     ['html', { outputFile: 'html-report.html', open: 'never' }],
     [process.env.CI ? 'blob' : 'null'],
+    [process.env.CI ? 'github' : 'null'],
   ],
   outputDir: 'test-results',
   globalSetup: require.resolve('@setup/global.setup'),

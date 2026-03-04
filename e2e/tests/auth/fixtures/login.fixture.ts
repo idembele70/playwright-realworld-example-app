@@ -7,14 +7,16 @@ import { CompositeIdFactory } from '@shared/factories/composite-id.factory';
 
 export const loginTest = baseTest.extend<{ loginPage: LoginPage; existingUser: User; newUser: User; }>({
   existingUser: [async ({}, use, workerInfo) => {
-    const id = CompositeIdFactory.create('login-test-existing', workerInfo.parallelIndex);
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('login-test-existing', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     const token = await AuthUtility.createAccount(user);
     await use(user);
     await AuthUtility.deleteAccount(token);
   }, { scope: 'test' }],
   newUser: [async ({}, use, workerInfo) => {
-    const id = CompositeIdFactory.create('login-test-new', workerInfo.parallelIndex);
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('login-test-new', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     await use(user);
   }, { scope: 'test' }],

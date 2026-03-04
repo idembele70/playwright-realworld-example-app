@@ -116,7 +116,7 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       });
     articleCreationTest('Prevent SQL injection in article tags', { tag: ['@extended', '@security'] },
       async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        const maliciousArticle: Article = { ...article, tags: [...article.tags, "\" OR 1=1 --"] };
+        const maliciousArticle: Article = { ...article, tags: ["\" OR 1=1 --", ...article.tags] };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
