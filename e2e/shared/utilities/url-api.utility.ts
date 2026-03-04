@@ -1,11 +1,11 @@
 import { ENV, ENV_CONFIG } from '@config/env.config';
 
-const API_BASE_URL = ENV_CONFIG[ENV].baseURL.front;
-const API_BASE_PATHNAME = '/api/';
+const API_BASE_URL = ENV_CONFIG[ENV].baseURL.api;
 
+const ESCAPED_API_BASE_URL = API_BASE_URL.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 export const API_URLS_REGEX = {
-  HOME: new RegExp(`^${API_BASE_URL}$`),
-  LOGIN: new RegExp(`^${API_BASE_URL}login$`),
+  HOME: new RegExp(`^${ESCAPED_API_BASE_URL}$`),
+  LOGIN: new RegExp(`^${ESCAPED_API_BASE_URL}login$`),
 } as const;
 
 export const API_URLS = {

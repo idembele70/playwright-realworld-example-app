@@ -1,7 +1,6 @@
-import { ArticleDetailsPage } from './../pages/article-details.page';
 import { AuthUtility } from "@auth/auth.utility";
 import { LoginPage } from "@auth/pages/login.page";
-import guestTest, { expect } from "@playwright/test";
+import { test as guestTest, expect } from "@playwright/test";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
 import { ArticleFactory } from "article/article.factory";
 import { articleCreationTest } from "article/article.fixture";
@@ -14,7 +13,7 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
   articleCreationTest.describe('Happy', { tag: '@happy' }, () => {
     articleCreationTest.afterEach(async ({ articleDetailsPage, token }) => {
       const slug = articleDetailsPage.getSlugFromUrl();
-      await ArticleUtility.deleteArticle(token, slug);
+      await ArticleUtility.deleteArticleIfCreated(token, slug);
     });
 
     articleCreationTest('Create a valid article with valid data', { tag: '@smoke' },
@@ -70,7 +69,7 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       });
     articleCreationTest('Show validation error for duplicate title', { tag: ['@regression'] },
       async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        let slug: string;
+        let slug: string | undefined;
         try {
           await articleEditorPage.createArticle(article);
           await articleDetailsPage.expectArticleVisible(article);
@@ -195,10 +194,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       async ({ page, articleEditorPage, article, token, articleDetailsPage }) => {
         articleCreationTest.fixme(true, 'x-csrf-token is not present in the header');
         try {
-          await page.route(`**${API_URLS.ARTICLES}`, async route => {
+          await page.route(mockApiUrl(API_URLS.ARTICLES.CREATION), async route => {
             const headers = route.request().headers();
             if (headers['x-csrf-token'])
-              route.continue();
+              await route.continue();
             else {
               await route.fulfill({
                 status: 403,
