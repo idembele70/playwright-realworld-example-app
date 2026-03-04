@@ -10,6 +10,7 @@
       "@auth/*": ["auth/*"],
       "@config/*": ["../config/*"],
       "@shared/*": ["../shared/*"],
+      "@setup/*": ["../setup/*"],
     },
   },
   "include": ["./e2e/**/*.ts", "playwright.config.ts"],

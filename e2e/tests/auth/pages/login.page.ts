@@ -1,10 +1,10 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
 import { User } from "../auth.model";
-import { FRONT_URLS } from "@shared/utilities/url-front.utility";
+import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class LoginPage {
-  readonly urlRegExp = FRONT_URLS.LOGIN;
+  readonly urlRegExp = FRONT_URLS_REG_EXP.LOGIN;
   readonly header: HeaderComponent;
 
   private readonly container: Locator;
@@ -16,7 +16,7 @@ export class LoginPage {
   readonly errorMessages: Locator;
 
   constructor(private readonly page: Page) {
-    this.header = new HeaderComponent(page);
+    this.header = new HeaderComponent(this.page);
 
     this.container = this.page.locator('app-auth-page');
     this.signInHeader = this.container.getByRole('heading', { name: 'Sign in', exact: true });
@@ -28,7 +28,7 @@ export class LoginPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('login');
+    await this.page.goto(FRONT_URLS.LOGIN);
   }
 
   async login(user: User): Promise<void> {
@@ -48,5 +48,10 @@ export class LoginPage {
     await expect(this.errorMessages).toHaveText('email or password is invalid');
     await expect(this.page).toHaveURL(this.urlRegExp);
     await expect(this.header.profileLink).toBeHidden();
+  }
+
+  async expectOnLoginPage(): Promise<void> {
+    await expect(this.page).toHaveURL(this.urlRegExp);
+    await expect(this.signInHeader).toBeVisible();
   }
 }

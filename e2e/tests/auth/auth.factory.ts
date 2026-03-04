@@ -10,7 +10,4 @@ export class AuthFactory {
       ...overrides,
     };
   }
-
-  static buildId(...ids: (string | number)[]): string { return ids.join('-') }
-
 }

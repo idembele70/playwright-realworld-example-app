@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "test:e2e:production",
+			"problemMatcher": [],
+			"label": "npm: test:e2e:production",
+			"detail": "TEST_ENV=production npx playwright test",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}

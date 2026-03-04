@@ -1,5 +1,5 @@
 export type TestEnv = 'local' | 'production';
-export const ENV = (process.env.TEST_ENV  as TestEnv) ?? 'local';
+export const ENV = (process.env.TEST_ENV  as TestEnv) ?? 'production';
 
 const FRONT_BASE_PATHNAME = '/angular-conduit/';
 const API_BASE_PATHNAME = '/api/';

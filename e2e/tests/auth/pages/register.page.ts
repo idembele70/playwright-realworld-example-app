@@ -3,10 +3,10 @@ import { AuthUtility } from "@auth/auth.utility";
 import { expect } from "@auth/fixtures/register.fixture";
 import { Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
-import { FRONT_URLS } from "@shared/utilities/url-front.utility";
+import { FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class RegisterPage {
-  readonly urlRegExp = FRONT_URLS.REGISTER;
+  readonly urlRegExp = FRONT_URLS_REG_EXP.REGISTER;
   readonly header: HeaderComponent;
 
   private readonly container: Locator;
@@ -66,7 +66,7 @@ export class RegisterPage {
   }
 
   async expectPageToBeProtectedForAuthenticatedUsers(): Promise<void> {
-    await expect(this.page).toHaveURL(FRONT_URLS.HOME);
+    await expect(this.page).toHaveURL(FRONT_URLS_REG_EXP.HOME);
     await expect(this.header.signInLink).toBeHidden();
     await expect(this.header.signUpLink).toBeHidden();
   }

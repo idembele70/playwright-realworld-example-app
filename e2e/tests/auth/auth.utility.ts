@@ -1,10 +1,10 @@
-import { APIRequestContext, request } from "@playwright/test";
+import { APIRequestContext, Page, request } from "@playwright/test";
 import { User } from "./auth.model";
 import { ENV, ENV_CONFIG } from "@config/env.config";
 
 export class AuthUtility {
   static async createAccount(user: User): Promise<string | undefined> {
-    const apiContext = await this.createApiContext();
+    const apiContext = await this.createAuthenticatedApiContext();
 
     const response = await apiContext.post('users', {
       data: { user },
@@ -21,7 +21,7 @@ export class AuthUtility {
   }
 
   static async deleteAccount(token: string): Promise<void> {
-    const apiContext = await this.createApiContext(token);
+    const apiContext = await this.createAuthenticatedApiContext(token);
 
     const response = await apiContext.delete('user');
 
@@ -38,7 +38,7 @@ export class AuthUtility {
   }
 
   static async login(user: User): Promise<string> {
-    const apiContext = await this.createApiContext();
+    const apiContext = await this.createAuthenticatedApiContext();
 
     const response = await apiContext.post('users/login', {
       data: { user },
@@ -63,7 +63,7 @@ export class AuthUtility {
     }
   }
 
-  private static async createApiContext(token?: string): Promise<APIRequestContext> {
+  static async createAuthenticatedApiContext(token?: string): Promise<APIRequestContext> {
     return await request.newContext({
       baseURL: ENV_CONFIG[ENV].baseURL.api,
       extraHTTPHeaders: {
@@ -71,5 +71,13 @@ export class AuthUtility {
         ...(token ? { 'Authorization': `Token ${token}` } : {}),
       },
     });
+  }
+
+  static async clearAuth(page: Page): Promise<void> {
+    await page.evaluate(() => localStorage.clear());
+  }
+
+  static async setFakeToken(page: Page, token = 'invalid.fake.jwt.token'): Promise<void> {
+    await page.evaluate((t) => localStorage.setItem('jwtToken', t), token);
   }
 }
