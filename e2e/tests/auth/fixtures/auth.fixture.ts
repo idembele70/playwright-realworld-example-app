@@ -7,10 +7,10 @@ export const expect = baseTest.expect;
 
 export const authTest = baseTest.extend<{}, { workerStorageState: string }>({
   storageState: ({ workerStorageState }, use) => use(workerStorageState),
-  workerStorageState: [async ({ }, use, testInfo) => {
-    const { parallelIndex } = testInfo;
-    const shardIndex = testInfo.config.shard?.current ?? 1;
-    const id = CompositeIdFactory.create('auth-fixture', `${shardIndex}-${parallelIndex}`);
+  workerStorageState: [async ({ }, use, workerInfo) => {
+    const { parallelIndex } = workerInfo;
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('auth-fixture', 'shard', shardIndex, 'worker', parallelIndex);
     const fileDirectoryPath = path.join('playwright', '.auth');
     const fileName = path.resolve(fileDirectoryPath, `${id}-user.json`);
 
