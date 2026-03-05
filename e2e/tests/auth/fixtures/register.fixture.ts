@@ -9,7 +9,8 @@ export const registerTest = baseTest.extend<{
   user: User;
 }>({
   user: [async ({}, use, workerInfo) => {
-    const id = CompositeIdFactory.create('register-test', workerInfo.parallelIndex);
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('register-test', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     await use(user);
   }, { scope: 'test' }],

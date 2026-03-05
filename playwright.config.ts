@@ -14,8 +14,8 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html', { outputFile: 'html-report.html', open: 'never' }],
-    [process.env.CI ? 'github' : 'null'],
+    [process.env.CI ? 'null' : 'html', { open: 'never' }],
+    [process.env.CI ? 'blob' : 'null'],
   ],
   outputDir: 'test-results',
   globalSetup: require.resolve('@setup/global.setup'),

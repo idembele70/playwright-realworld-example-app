@@ -8,16 +8,22 @@ import path from "node:path";
 
 export default async function globalSetup(config: FullConfig) {
   const workers = config.workers ?? 1;
-  console.log(`[globalSetup] Starting setup for ${workers} workers`);
+  const shardIndex = config.shard?.current ?? 1;
+  const shardTotal = config.shard?.total ?? 1;
+  console.log(
+    `[globalSetup] Starting setup for shard ${shardIndex}/${shardTotal} with ${workers} workers`
+  );
 
   const authDir = path.join('playwright', '.auth');
   fs.mkdirSync(authDir, { recursive: true })
 
   const tasks = Array.from({ length: workers }, async (_, workerIndex) => {
-    const id = CompositeIdFactory.create('auth-fixture', workerIndex);
-    const storageFile = path.resolve(authDir, `worker-${id}-user.json`);
+    const id = CompositeIdFactory.create('auth-fixture', 'shard', shardIndex, 'worker', workerIndex);
+    const storageFile = path.resolve(authDir, `${id}-user.json`);
     if (fs.existsSync(storageFile)) {
-      console.log(`[globalSetup] auth already exists for worker ${workerIndex}`);
+      console.log(
+        `[globalSetup] auth already exists for shard ${shardIndex} worker ${workerIndex}`
+      );
       return;
     }
     const user = AuthFactory.buildUser(id);
@@ -42,7 +48,9 @@ export default async function globalSetup(config: FullConfig) {
       JSON.stringify(sessionStorage, null, 2),
       'utf-8',
     );
-    console.log(`[globalSetup] auth created for worker ${workerIndex}`);
+    console.log(
+      `[globalSetup] auth created for shard ${shardIndex} worker ${workerIndex}`
+    );
   });
 
   await Promise.all(tasks);

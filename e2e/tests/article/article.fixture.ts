@@ -15,12 +15,14 @@ export const articleCreationTest = authTest.extend<{
   articleDetailsPage: ArticleDetailsPage;
 }>({
   article: [async ({}, use, workerInfo) => {
-    const id = CompositeIdFactory.create('article-test', workerInfo.parallelIndex);
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('article-test', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
     const article = ArticleFactory.buildArticle(id);
     await use(article);
   }, { scope: 'test' }],
   token: [async ({}, use, workerInfo) => {
-    const id = CompositeIdFactory.create('auth-fixture', workerInfo.parallelIndex);
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('auth-fixture','shard', shardIndex, 'worker', workerInfo.parallelIndex);
     const user = AuthFactory.buildUser(id);
     const token = await AuthUtility.login(user);
     await use(token)

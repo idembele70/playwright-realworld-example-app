@@ -8,18 +8,25 @@ import fs from "node:fs";
 export default async function globalTeardown(config: FullConfig) {
   const workers = config.workers ?? 1;
 
-  console.log(`[globalTeardown] Starting teardown for ${workers} workers`);
+  const shardIndex = config.shard?.current ?? 1;
+  const shardTotal = config.shard?.total ?? 1;
 
-  const deletions = Array.from({ length: workers }, async (__dirname, index) => {
+  console.log(
+    `[globalTeardown] Starting teardown for ${shardIndex}/${shardTotal} with ${workers} workers`
+  );
+
+  const deletions = Array.from({ length: workers }, async (__dirname, workerIndex) => {
     try {
-      const id = CompositeIdFactory.create('auth-fixture', index);
+    const id = CompositeIdFactory.create('auth-fixture', 'shard', shardIndex, 'worker', workerIndex);
       const user = AuthFactory.buildUser(id);
       const token = await AuthUtility.login(user);
       await AuthUtility.deleteAccount(token);
-      console.log(`[globalTeardown] deleted account for worker ${index}`);
+      console.log(
+        `[globalTeardown] deleted account for shard ${shardIndex} worker ${workerIndex}`
+      );
     } catch (error) {
       console.error(
-        `[globalTeardown] failed to delete account for worker ${index}`,
+        `[globalTeardown] failed to delete account for shard ${shardIndex} worker ${workerIndex}`,
         error,
       );
     }
