@@ -1,13 +1,10 @@
 
-import { Article, CreateArticleRequest } from '@article/models/article.model';
-import { CompositeIdFactory } from '@shared/factories/composite-id.factory';
-import { ArticleFactory } from '@article/article.factory';
-import { AuthFactory } from '@auth/auth.factory';
-import { AuthUtility } from '@auth/auth.utility';
-import { ArticleEditorPage } from '@article/pages/article-editor.page';
-import { ArticleDetailsPage } from '@article/pages/article-details.page';
-import { authTest } from '@auth/fixtures/auth.fixture';
 import { ArticleUtility } from '@article/article.utility';
+import { CreateArticleRequest } from '@article/models/article.model';
+import { ArticleDetailsPage } from '@article/pages/article-details.page';
+import { ArticleEditorPage } from '@article/pages/article-editor.page';
+import { AuthUtility } from '@auth/auth.utility';
+import { authTest } from '@auth/fixtures/auth.fixture';
 
 export const articleCreationTest = authTest.extend<{
   token: string;

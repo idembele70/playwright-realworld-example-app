@@ -22,10 +22,10 @@ export const articleReadTest = authTest.extend<{
     )
   }, { scope: 'test' }],
   homePage: async ({ page }, use) => {
-    use(new HomePage(page));
+    await use(new HomePage(page));
   },
   articleDetailsPage: async ({ page }, use) => {
-    use(new ArticleDetailsPage(page));
+    await use(new ArticleDetailsPage(page));
   },
   
 });

@@ -32,7 +32,8 @@ export class ArticlePreviewComponent {
     }
     const articlePreviewRow = this.getCurrentArticlePreviewRow(title);
     const link = await articlePreviewRow.locator('.preview-link').getAttribute('href');
-    return link.split('/').at(-1);
+    if (!link) return null;
+    return link.split('/').at(-1) ?? null;
   }
 
   getCurrentArticlePreviewRow(title: string): Locator {

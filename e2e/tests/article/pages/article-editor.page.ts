@@ -1,8 +1,7 @@
 import { ArticleFormComponent } from "@article/components/article-form.component";
-import { expect } from "@article/fixtures/article-creation.fixture";
 import { CreateArticleRequest } from "@article/models/article.model";
 import { ValidationErrorType, ValidatorErrorField } from "@article/models/validation-error.model";
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
 import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 

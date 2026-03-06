@@ -1,7 +1,7 @@
 import { ArticlePreviewComponent } from "@article/components/article-preview.component";
 import { expect, Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
-import { FRONT_URLS } from "@shared/utilities/url-front.utility";
+import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class HomePage {
   header: HeaderComponent;
@@ -30,7 +30,7 @@ export class HomePage {
   }
 
   async expectOnHomePage(): Promise<void> {
-    await expect(this.page).toHaveURL(FRONT_URLS.HOME);
+    await expect(this.page).toHaveURL(FRONT_URLS_REG_EXP.HOME);
     await expect(this.mainContent).toBeVisible();
   }
 
