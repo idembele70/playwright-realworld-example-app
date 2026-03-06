@@ -1,6 +1,8 @@
-import { APIRequestContext, Page, request } from "@playwright/test";
+import { APIRequestContext, Page, request, TestInfo } from "@playwright/test";
 import { User } from "./auth.model";
 import { ENV, ENV_CONFIG } from "@config/env.config";
+import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
+import { AuthFactory } from "./auth.factory";
 
 export class AuthUtility {
   static async createAccount(user: User): Promise<string | undefined> {
@@ -79,5 +81,12 @@ export class AuthUtility {
 
   static async setFakeToken(page: Page, token = 'invalid.fake.jwt.token'): Promise<void> {
     await page.evaluate((t) => localStorage.setItem('jwtToken', t), token);
+  }
+
+  static async createAuthToken(workerInfo: TestInfo): Promise<string> {
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create('auth-fixture', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
+    const user = AuthFactory.buildUser(id);
+    return await AuthUtility.login(user);
   }
 }

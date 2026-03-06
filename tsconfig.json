@@ -8,6 +8,7 @@
     "types": ["node", "@playwright/test"],
     "paths": {
       "@auth/*": ["auth/*"],
+      "@article/*": ["article/*"],
       "@config/*": ["../config/*"],
       "@shared/*": ["../shared/*"],
       "@setup/*": ["../setup/*"],

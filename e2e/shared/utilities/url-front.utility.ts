@@ -15,4 +15,6 @@ export const FRONT_URLS = {
   LOGIN:'login',
   REGISTER:'register',
   ARTICLE_EDITOR: 'editor',
+  ARTICLE_DETAILS: 'article',
+  PROFILE: 'profile'
 } as const;

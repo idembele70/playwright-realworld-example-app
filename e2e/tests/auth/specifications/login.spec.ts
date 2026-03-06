@@ -1,5 +1,5 @@
 import { FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
-import { expect, loginTest } from "../fixtures/login.fixture";
+import { expect, loginTest } from "@auth/fixtures/login.fixture";
 import { AuthUtility } from "@auth/auth.utility";
 
 loginTest.describe('Authentication - Login', { tag: '@auth' }, () => {

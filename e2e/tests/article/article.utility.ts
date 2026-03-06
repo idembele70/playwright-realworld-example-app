@@ -1,8 +1,33 @@
 import { AuthUtility } from "@auth/auth.utility";
-import { Page } from "@playwright/test";
+import { Page, TestInfo } from "@playwright/test";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
+import { Article, CreateArticleRequest } from "./models/article.model";
+import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
+import { ArticleFactory } from "./article.factory";
+import { FRONT_URLS } from "@shared/utilities/url-front.utility";
 
 export class ArticleUtility {
+  static async createArticleViaApi(token: string, articlePayload: CreateArticleRequest): Promise<Article> {
+    const apiContext = await AuthUtility.createAuthenticatedApiContext(token);
+
+    try {
+      const response = await apiContext.post(API_URLS.ARTICLES.CREATION, {
+        data: { article: articlePayload },
+      });
+
+      if (!response.ok()) {
+        const body = await response.text();
+        throw new Error(
+          `Create article failed: ${response.status()} ${response.statusText()} - ${body}`
+        );
+      }
+      const responseBody = await response.json();
+      return responseBody.article;
+    } finally {
+      await apiContext.dispose();
+    }
+  }
+
   static async deleteArticle(token: string, slug: string): Promise<void> {
     const apiContext = await AuthUtility.createAuthenticatedApiContext(token);
 
@@ -42,4 +67,33 @@ export class ArticleUtility {
       getCallCount: () => callCount,
     }
   }
+
+  static async mockGetArticleList(page: Page, { delay = 0, status = 200, body = {} } = {}): Promise<void> {
+    await page.route(mockApiUrl(API_URLS.ARTICLES.GET_LIST()), async route => {
+      if (delay) await new Promise(r => setTimeout(r, delay));
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify(body),
+      });
+    });
+  }
+
+  static async mockGetTagList(page: Page, { delay = 0, status = 200, body = {} } = {}): Promise<void> {
+    await page.route(mockApiUrl(API_URLS.TAG.GET_LIST), async route => {
+      if (delay) await new Promise(r => setTimeout(r, delay));
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify(body),
+      });
+    });
+  }
+
+  static generateTestArticle(workerInfo: TestInfo, title: string): CreateArticleRequest {
+    const shardIndex = workerInfo.config.shard?.current ?? 1;
+    const id = CompositeIdFactory.create(title, 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
+    return ArticleFactory.buildArticlePayload(id);
+  }
+
 }

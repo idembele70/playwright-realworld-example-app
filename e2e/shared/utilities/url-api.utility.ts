@@ -11,8 +11,12 @@ export const API_URLS_REGEX = {
 export const API_URLS = {
   ARTICLES: {
     CREATION: 'articles/',
-    DELETION: (slug: string) => `articles/${slug}`
+    DELETION: (slug: string) => `articles/${slug}`,
+    GET_LIST: ({ limit = 10, offset = 0 } = {}) => `articles?limit=${limit}&offset=${offset}`
   },
+  TAG: {
+    GET_LIST: 'tags'
+  }
 };
 
 export const mockApiUrl = (pathname: string): string => `**${pathname}`;
