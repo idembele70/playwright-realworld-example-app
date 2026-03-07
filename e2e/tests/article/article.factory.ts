@@ -1,14 +1,35 @@
-import { Article } from "./models/article.model";
+import { Article, CreateArticleRequest } from "./models/article.model";
 
 export class ArticleFactory {
-  static buildArticle(id: string, overrides?: Partial<Article>): Article {
+  static buildArticlePayload(id: string, overrides?: CreateArticleRequest): CreateArticleRequest {
     return {
-      title: `article-${id}`,
+      title: `title-${id}`,
       description: `description-${id}`,
-      content: `content-${id}`,
-      tags: [`tag-1-${id}`, `tag-2-${id}`],
+      body: `body-${id}`,
+      tagList: [`tag-1-${id}`, `tag-2-${id}`],
       ...overrides,
     };
+  }
+
+  static buildArticle(id: string | number, overrides?: Article): Article {
+    return {
+      slug: `title-${id}`,
+      title: `title ${id}`,
+      description: `Description ${id}`,
+      body: 'body',
+      tagList: [`tag-${id}`],
+      createdAt: String(Date.now()),
+      updatedAt: String(Date.now()),
+      favorited: false,
+      favoritesCount: 0,
+      author: {
+        username: `user-${id}`,
+        bio: null,
+        image: '',
+        following: false,
+      },
+      ...overrides,
+    }
   }
 
   static buildArticleTagList(parallelIndex: number, length: number): string[] {

@@ -1,8 +1,8 @@
+import { CreateArticleRequest } from "@article/models/article.model";
 import { expect } from "@auth/fixtures/auth.fixture";
 import { Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "@shared/layouts/header.component";
-import { FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
-import { Article } from "article/models/article.model";
+import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class ArticleDetailsPage {
   readonly urlRegExp = FRONT_URLS_REG_EXP.ARTICLE_DETAILS;
@@ -15,7 +15,7 @@ export class ArticleDetailsPage {
   readonly bannerDeleteArticleButton: Locator;
 
   readonly content: Locator;
-  readonly tagItems: Locator;
+  readonly tagList: Locator;
 
   constructor(private readonly page: Page) {
     this.header = new HeaderComponent(this.page);
@@ -27,13 +27,19 @@ export class ArticleDetailsPage {
     this.bannerDeleteArticleButton = this.bannerWrapper.getByRole('button', { name: 'Delete Article' });
 
     this.content = this.container.locator('.article-content');
-    this.tagItems = this.container.getByRole('listitem');
+    this.tagList = this.container.locator('ul.tag-list');
   }
 
-  async expectArticleVisible(article: Article): Promise<void> {
-    await expect(this.title).toHaveText(article.title);
-    await expect(this.content).toContainText(article.content);
-    await expect(this.tagItems).toHaveText(article.tags);
+  async goToViaUrl(slug: string): Promise<void> {
+    await this.page.goto(`${FRONT_URLS.ARTICLE_DETAILS}/${slug}`)
+  }
+
+  async expectArticleVisible(articlePayload: CreateArticleRequest): Promise<void> {
+    await expect(this.title).toHaveText(articlePayload.title);
+    await expect(this.content).toContainText(articlePayload.body);
+    for (const tag of articlePayload.tagList) {
+      await expect(this.tagList).toContainText(tag);
+    }
   }
 
   async deleteArticleFromBanner(): Promise<void> {

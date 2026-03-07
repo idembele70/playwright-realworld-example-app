@@ -1,13 +1,13 @@
+import { ArticleFactory } from "@article/article.factory";
+import { ArticleUtility } from "@article/article.utility";
+import { articleCreationTest } from "@article/fixtures/article-creation.fixture";
+import { CreateArticleRequest } from "@article/models/article.model";
+import { ValidationErrorType } from "@article/models/validation-error.model";
+import { ArticleEditorPage } from "@article/pages/article-editor.page";
 import { AuthUtility } from "@auth/auth.utility";
 import { LoginPage } from "@auth/pages/login.page";
-import { test as guestTest, expect } from "@playwright/test";
+import { expect, test as guestTest } from "@playwright/test";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
-import { ArticleFactory } from "article/article.factory";
-import { articleCreationTest } from "article/article.fixture";
-import { ArticleUtility } from "article/article.utility";
-import { Article } from "article/models/article.model";
-import { ValidationErrorType } from "article/models/validation-error.model";
-import { ArticleEditorPage } from "article/pages/article-editor.page";
 
 articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
   articleCreationTest.describe('Happy', { tag: '@happy' }, () => {
@@ -17,19 +17,19 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
     });
 
     articleCreationTest('Create a valid article with valid data', { tag: '@smoke' },
-      async ({ articleEditorPage, articleDetailsPage, article }) => {
-        await articleEditorPage.createArticle(article);
-        await articleDetailsPage.expectArticleVisible(article);
+      async ({ articleEditorPage, articleDetailsPage, articlePayload }) => {
+        await articleEditorPage.createArticle(articlePayload);
+        await articleDetailsPage.expectArticleVisible(articlePayload);
       });
     articleCreationTest('Create article with optional fields empty', { tag: ['@regression'] },
-      async ({ articleEditorPage, articleDetailsPage, article }) => {
-        const newArticle: Article = { ...article, tags: [] };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload }) => {
+        const newArticle: CreateArticleRequest = { ...articlePayload, tagList: [] };
         await articleEditorPage.createArticle(newArticle);
         await articleDetailsPage.expectArticleVisible(newArticle);
       });
     articleCreationTest('Create article with multiple tags', { tag: ['@regression'] },
-      async ({ articleEditorPage, articleDetailsPage, article }, testInfo) => {
-        const newArticle: Article = { ...article, tags: ArticleFactory.buildArticleTagList(testInfo.parallelIndex, 3) };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload }, testInfo) => {
+        const newArticle: CreateArticleRequest = { ...articlePayload, tagList: ArticleFactory.buildArticleTagList(testInfo.parallelIndex, 3) };
         await articleEditorPage.createArticle(newArticle);
         await articleDetailsPage.expectArticleVisible(newArticle);
       });
@@ -47,36 +47,36 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       });
 
     articleCreationTest('Show validation error when title is empty', { tag: ['@regression'] },
-      async ({ articleEditorPage, article }) => {
-        const invalidArticle: Article = { ...article, title: '' };
+      async ({ articleEditorPage, articlePayload }) => {
+        const invalidArticle: CreateArticleRequest = { ...articlePayload, title: '' };
         await articleEditorPage.createArticle(invalidArticle);
         await articleEditorPage.expectValidationError('title', ValidationErrorType.REQUIRED);
         await articleEditorPage.expectOnEditorPage();
       });
     articleCreationTest('Show validation error when description is empty', { tag: ['@regression'] },
-      async ({ articleEditorPage, article }) => {
-        const invalidArticle: Article = { ...article, description: '' };
+      async ({ articleEditorPage, articlePayload }) => {
+        const invalidArticle: CreateArticleRequest = { ...articlePayload, description: '' };
         await articleEditorPage.createArticle(invalidArticle);
         await articleEditorPage.expectValidationError('description', ValidationErrorType.REQUIRED);
         await articleEditorPage.expectOnEditorPage();
       });
     articleCreationTest('Show validation error when body is empty', { tag: ['@regression'] },
-      async ({ articleEditorPage, article }) => {
-        const invalidArticle: Article = { ...article, content: '' };
+      async ({ articleEditorPage, articlePayload }) => {
+        const invalidArticle: CreateArticleRequest = { ...articlePayload, body: '' };
         await articleEditorPage.createArticle(invalidArticle);
         await articleEditorPage.expectValidationError('body', ValidationErrorType.REQUIRED);
         await articleEditorPage.expectOnEditorPage();
       });
     articleCreationTest('Show validation error for duplicate title', { tag: ['@regression'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         let slug: string | undefined;
         try {
-          await articleEditorPage.createArticle(article);
-          await articleDetailsPage.expectArticleVisible(article);
+          await articleEditorPage.createArticle(articlePayload);
+          await articleDetailsPage.expectArticleVisible(articlePayload);
           slug = articleDetailsPage.getSlugFromUrl();
           await articleEditorPage.navigate();
           await articleEditorPage.expectOnEditorPage();
-          await articleEditorPage.createArticle(article);
+          await articleEditorPage.createArticle(articlePayload);
           await articleEditorPage.expectValidationError('title', ValidationErrorType.UNIQUE);
           await articleEditorPage.expectOnEditorPage();
         } finally {
@@ -85,8 +85,8 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       });
 
     articleCreationTest('Prevent SQL injection in article title', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        const maliciousArticle: Article = { ...article, title: "'; DROP TABLE articles; --" };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, title: "'; DROP TABLE articles; --" };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -95,8 +95,8 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
         }
       });
     articleCreationTest('Prevent SQL injection in article description', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        const maliciousArticle: Article = { ...article, description: "' OR '1'='1" };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, description: "' OR '1'='1" };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -105,8 +105,8 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
         }
       });
     articleCreationTest('Prevent SQL injection in article body', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        const maliciousArticle: Article = { ...article, content: "'; DROP TABLE users; --" };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, body: "'; DROP TABLE users; --" };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -115,8 +115,8 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
         }
       });
     articleCreationTest('Prevent SQL injection in article tags', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
-        const maliciousArticle: Article = { ...article, tags: ["\" OR 1=1 --", ...article.tags] };
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, tagList: ["\" OR 1=1 --", ...articlePayload.tagList] };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -126,8 +126,8 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       });
 
     articleCreationTest('Sanitize HTML content to prevent XSS in title', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, article, articleDetailsPage, token }) => {
-        const maliciousArticle: Article = { ...article, title: `<script>alert("xss")</script>` };
+      async ({ articleEditorPage, articlePayload, articleDetailsPage, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, title: `<script>alert("xss")</script>` };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -139,9 +139,9 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Sanitize HTML content to prevent XSS in description', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, article, articleDetailsPage, token }) => {
+      async ({ articleEditorPage, articlePayload, articleDetailsPage, token }) => {
         articleCreationTest.fixme(true, 'Description is not visible on this page');
-        const maliciousArticle: Article = { ...article, description: `<img src=x onerror=alert(1)>` };
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, description: `<img src=x onerror=alert(1)>` };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
@@ -153,26 +153,26 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Sanitize HTML content to prevent XSS in body', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, article, articleDetailsPage, token }) => {
-        const maliciousArticle: Article = { ...article, content: `<svg/onload=alert(1)>` };
+      async ({ articleEditorPage, articlePayload, articleDetailsPage, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, body: `<svg/onload=alert(1)>` };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
           await articleDetailsPage.expectNoInjectedScript();
-          await articleDetailsPage.expectEscapedContent(maliciousArticle.content);
+          await articleDetailsPage.expectEscapedContent(maliciousArticle.body);
         } finally {
           await ArticleUtility.deleteArticle(token, articleDetailsPage.getSlugFromUrl());
         }
       }
     );
     articleCreationTest('Sanitize HTML content to prevent XSS in tags', { tag: ['@extended', '@security'] },
-      async ({ articleEditorPage, article, articleDetailsPage, token }) => {
-        const maliciousArticle: Article = { ...article, tags: [`<script>alert(document.cookie)</script>`] };
+      async ({ articleEditorPage, articlePayload, articleDetailsPage, token }) => {
+        const maliciousArticle: CreateArticleRequest = { ...articlePayload, tagList: [`<script>alert(document.cookie)</script>`] };
         try {
           await articleEditorPage.createArticle(maliciousArticle);
           await articleDetailsPage.expectArticleVisible(maliciousArticle);
           await articleDetailsPage.expectNoInjectedScript();
-          await articleDetailsPage.expectEscapedContent(maliciousArticle.tags[0]);
+          await articleDetailsPage.expectEscapedContent(maliciousArticle.tagList[0]);
         } finally {
           await ArticleUtility.deleteArticle(token, articleDetailsPage.getSlugFromUrl());
         }
@@ -180,18 +180,18 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
     );
 
     articleCreationTest('Show error message when API fails', { tag: ['@regression'] },
-      async ({ page, articleEditorPage, article }) => {
+      async ({ page, articleEditorPage, articlePayload }) => {
         const errorMessage = 'Internal server error';
         await ArticleUtility.mockCreateArticle(page, {
           status: 500,
           body: { errors: { message: errorMessage } },
         });
-        await articleEditorPage.createArticle(article);
+        await articleEditorPage.createArticle(articlePayload);
         await articleEditorPage.expectApiError(errorMessage);
       }
     );
     articleCreationTest('Prevent CSRF attack on article creation', { tag: ['@extended', '@security'] },
-      async ({ page, articleEditorPage, article, token, articleDetailsPage }) => {
+      async ({ page, articleEditorPage, articlePayload, token, articleDetailsPage }) => {
         articleCreationTest.fixme(true, 'x-csrf-token is not present in the header');
         try {
           await page.route(mockApiUrl(API_URLS.ARTICLES.CREATION), async route => {
@@ -206,27 +206,27 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
             }
           });
 
-          await articleEditorPage.createArticle(article);
+          await articleEditorPage.createArticle(articlePayload);
         } finally {
           await ArticleUtility.deleteArticle(token, articleDetailsPage.getSlugFromUrl());
         }
       }
     );
     articleCreationTest('Prevent API call without valid JWT token', { tag: ['@extended', '@security'] },
-      async ({ page, articleEditorPage, article }) => {
+      async ({ page, articleEditorPage, articlePayload }) => {
         await articleEditorPage.expectOnEditorPage();
         await AuthUtility.setFakeToken(page);
-        await articleEditorPage.createArticle(article);
+        await articleEditorPage.createArticle(articlePayload);
         await articleEditorPage.expectOnEditorPage();
       });
   });
 
   articleCreationTest.describe('Edge', { tag: '@edge' }, () => {
     articleCreationTest('Create article with very long title', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'tags are not deleted after article deletion when title is very long');
         try {
-          const newArticle: Article = { ...article, title: ArticleFactory.buildLongText() };
+          const newArticle: CreateArticleRequest = { ...articlePayload, title: ArticleFactory.buildLongText() };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -238,10 +238,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       articleCreationTest.fixme(true, 'Description is not visible on this page')
     });
     articleCreationTest('Create article with very long body', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'tags are not deleted after article deletion when body is very long');
         try {
-          const newArticle: Article = { ...article, content: ArticleFactory.buildLongText({ length: 100_000 }) };
+          const newArticle: CreateArticleRequest = { ...articlePayload, body: ArticleFactory.buildLongText({ length: 100_000 }) };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -250,10 +250,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Create article with very long tag', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'tags are not deleted after article deletion when tags are very long');
         try {
-          const newArticle: Article = { ...article, tags: [ArticleFactory.buildLongText({ length: 5_000 })] };
+          const newArticle: CreateArticleRequest = { ...articlePayload, tagList: [ArticleFactory.buildLongText({ length: 5_000 })] };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -262,10 +262,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Create article with special characters in title', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'tags are not deleted after article deletion when title contains special characters');
         try {
-          const newArticle: Article = { ...article, title: ArticleFactory.buildSpecialTextDeterministic() };
+          const newArticle: CreateArticleRequest = { ...articlePayload, title: ArticleFactory.buildSpecialTextDeterministic() };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -277,10 +277,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       articleCreationTest.fixme(true, 'Description is not visible on this page')
     });
     articleCreationTest('Create article with special characters in body', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'Some special characters are not allowed but end user is not informed about that')
         try {
-          const newArticle: Article = { ...article, content: ArticleFactory.buildSpecialTextDeterministic({ length: 500 }) };
+          const newArticle: CreateArticleRequest = { ...articlePayload, body: ArticleFactory.buildSpecialTextDeterministic({ length: 500 }) };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -289,10 +289,10 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Create article with special characters in tag', { tag: ['@extended'] },
-      async ({ articleEditorPage, articleDetailsPage, article, token }) => {
+      async ({ articleEditorPage, articleDetailsPage, articlePayload, token }) => {
         articleCreationTest.fixme(true, 'tags are not deleted after article deletion when tags contain special characters');
         try {
-          const newArticle: Article = { ...article, tags: [ArticleFactory.buildSpecialTextDeterministic({ length: 50 })] };
+          const newArticle: CreateArticleRequest = { ...articlePayload, tagList: [ArticleFactory.buildSpecialTextDeterministic({ length: 50 })] };
           await articleEditorPage.createArticle(newArticle);
           await articleDetailsPage.expectArticleVisible(newArticle);
         } finally {
@@ -301,9 +301,9 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Prevent duplicate article creation on double click', { tag: ['@regression'] },
-      async ({ articleEditorPage, article, page }) => {
+      async ({ articleEditorPage, articlePayload, page }) => {
         const mock = await ArticleUtility.mockCreateArticle(page, { body: { id: 1 } });
-        await articleEditorPage.form.fill(article);
+        await articleEditorPage.form.fill(articlePayload);
         await Promise.all([
           articleEditorPage.form.publishButton.dblclick({ force: true }),
           page.waitForResponse(mockApiUrl(API_URLS.ARTICLES.CREATION)),
@@ -312,25 +312,26 @@ articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
       }
     );
     articleCreationTest('Disable submit button while request is pending', { tag: ['@regression'] },
-      async ({ articleEditorPage, article, page }) => {
+      async ({ articleEditorPage, articlePayload, page }) => {
+        const responsePromise = page.waitForResponse(mockApiUrl(API_URLS.ARTICLES.CREATION));
         await ArticleUtility.mockCreateArticle(page, { delay: 1000 });
-        await articleEditorPage.createArticle(article);
+        await articleEditorPage.createArticle(articlePayload);
         await articleEditorPage.expectPublishButtonDisabled();
-        await page.waitForResponse(mockApiUrl(API_URLS.ARTICLES.CREATION));
+        await responsePromise;
       }
     );
     articleCreationTest('Display validation error messages above title field', { tag: ['@regression'] },
-      async ({ articleEditorPage, article, page }) => {
+      async ({ articleEditorPage, articlePayload, page }) => {
         await ArticleUtility.mockCreateArticle(page, { body: { title: [ValidationErrorType.UNIQUE] } });
-        await articleEditorPage.createArticle(article);
+        await articleEditorPage.createArticle(articlePayload);
         await articleEditorPage.expectPublishButtonDisabled();
       }
     );
     articleCreationTest('Keep form values when validation fails', { tag: ['@regression'] },
-      async ({ articleEditorPage, article }) => {
-        const invalidArticle: Article = {
-          ...article,
-          content: '',
+      async ({ articleEditorPage, articlePayload }) => {
+        const invalidArticle: CreateArticleRequest = {
+          ...articlePayload,
+          body: '',
         };
         await articleEditorPage.form.fill(invalidArticle);
 
