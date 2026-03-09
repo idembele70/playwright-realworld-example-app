@@ -1,3 +1,5 @@
+import { TestInfo } from "@playwright/test";
+import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
 import { Article, CreateArticleRequest } from "./models/article.model";
 
 export class ArticleFactory {
@@ -45,5 +47,10 @@ export class ArticleFactory {
     characters = `!@#$%^&*()_+[]{}<>?/\\|~\`"';:,.-=éèàç🚀`,
   } = {}): string {
     return characters.repeat(Math.ceil(length / characters.length)).slice(0, length);
+  }
+
+  static generateTestArticle(workerInfo: TestInfo, title: string): CreateArticleRequest {
+    const id = CompositeIdFactory.fromExecutionInfo(workerInfo, title);
+    return ArticleFactory.buildArticlePayload(id);
   }
 }

@@ -1,4 +1,4 @@
-import { ArticleUtility } from "@article/article.utility";
+import { ArticleFactory } from "@article/article.factory";
 import { CreateArticleRequest } from "@article/models/article.model";
 import { ArticleDetailsPage } from "@article/pages/article-details.page";
 import { AuthUtility } from '@auth/auth.utility';
@@ -13,7 +13,7 @@ export const articleReadTest = authTest.extend<{
 }>({
   articlePayload: [async ({ }, use, workerInfo) => {
     await use(
-      ArticleUtility.generateTestArticle(workerInfo, 'article-read-test')
+      ArticleFactory.generateTestArticle(workerInfo, 'article-read-test')
     );
   }, { scope: 'test' }],
   token: [async ({ }, use, workerInfo) => {

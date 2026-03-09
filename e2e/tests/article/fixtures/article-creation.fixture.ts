@@ -1,5 +1,5 @@
 
-import { ArticleUtility } from '@article/article.utility';
+import { ArticleFactory } from '@article/article.factory';
 import { CreateArticleRequest } from '@article/models/article.model';
 import { ArticleDetailsPage } from '@article/pages/article-details.page';
 import { ArticleEditorPage } from '@article/pages/article-editor.page';
@@ -14,7 +14,7 @@ export const articleCreationTest = authTest.extend<{
 }>({
   articlePayload: [async ({ }, use, workerInfo) => {
     await use(
-      ArticleUtility.generateTestArticle(workerInfo, 'article-creation-test')
+      ArticleFactory.generateTestArticle(workerInfo, 'article-creation-test')
     );
   }, { scope: 'test' }],
   token: [async ({ }, use, workerInfo) => {

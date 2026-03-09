@@ -1,6 +1,7 @@
 import { Article } from "@article/models/article.model";
 import { expect, Locator, Page } from "@playwright/test";
 import { DateUtilities } from "@shared/utilities/date.utilities";
+import { UiUtilities } from "@shared/utilities/ui-utilities";
 import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class ArticlePreviewComponent {
@@ -40,5 +41,14 @@ export class ArticlePreviewComponent {
     return this.articlePreviewRowList.filter({
       has: this.page.getByRole('heading', { name: title, exact: true }),
     });
+  }
+
+  async expectEscapedContent(payloadList: string[], title: string): Promise<void> {
+    for (const payload of payloadList) {
+      await UiUtilities.expectEscapedContent(
+        this.getCurrentArticlePreviewRow(title),
+        payload,
+      );
+    }
   }
 }

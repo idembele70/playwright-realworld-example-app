@@ -1,7 +1,8 @@
 import { CreateArticleRequest } from "@article/models/article.model";
-import { expect } from "@auth/fixtures/auth.fixture";
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, TestInfo, expect } from "@playwright/test";
+import { XssPayloadFactory } from "@shared/factories/xss-payload-factory";
 import { HeaderComponent } from "@shared/layouts/header.component";
+import { UiUtilities } from "@shared/utilities/ui-utilities";
 import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class ArticleDetailsPage {
@@ -31,11 +32,15 @@ export class ArticleDetailsPage {
   }
 
   async goToViaUrl(slug: string): Promise<void> {
-    await this.page.goto(`${FRONT_URLS.ARTICLE_DETAILS}/${slug}`)
+    await this.page.goto(`${FRONT_URLS.ARTICLE_DETAILS}/${slug}`);
+  }
+
+  async expectArticleTitle(title: string | RegExp): Promise<void> {
+    await expect(this.title).toHaveText(title);
   }
 
   async expectArticleVisible(articlePayload: CreateArticleRequest): Promise<void> {
-    await expect(this.title).toHaveText(articlePayload.title);
+    await this.expectArticleTitle(articlePayload.title);
     await expect(this.content).toContainText(articlePayload.body);
     for (const tag of articlePayload.tagList) {
       await expect(this.tagList).toContainText(tag);
@@ -60,9 +65,23 @@ export class ArticleDetailsPage {
     ).toHaveCount(0);
   }
 
-  async expectEscapedContent(payload: string): Promise<void> {
-    await expect(
-      this.page.getByText(payload)
-    ).toBeVisible();
+  async expectNoXSS(testInfo: TestInfo): Promise<void> {
+    const html = await this.container.innerHTML();
+    for (const xssPayload of XssPayloadFactory.all(testInfo)) {
+      expect(html).not.toContain(xssPayload);
+    }
+  }
+
+  async expectEscapedContent(payload: string | string[]): Promise<void> {
+    if (Array.isArray(payload)) {
+      for (const currentPayload of payload) {
+        await UiUtilities.expectEscapedContent(this.page, currentPayload);
+      }
+    } else
+      await UiUtilities.expectEscapedContent(this.page, payload);
+  }
+
+  async expectSanitizedContent(payload: string): Promise<void> {
+    await expect(this.container.getByText(payload)).toHaveCount(0);
   }
 }

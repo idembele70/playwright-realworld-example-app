@@ -22,7 +22,7 @@ articleReadTest.describe('Article - Read', { tag: '@article' }, () => {
         let articleList: Article[] = [];
         try {
           const articlePayloadList = Array.from({ length: 12 }).map((_, i) =>
-            ArticleUtility.generateTestArticle(workerInfo, `pagination-${i}`)
+            ArticleFactory.generateTestArticle(workerInfo, `pagination-${i}`)
           );
           articleList = await Promise.all(
             articlePayloadList.map(payload =>
@@ -48,10 +48,10 @@ articleReadTest.describe('Article - Read', { tag: '@article' }, () => {
 
         try {
           const tagToSelect = 'playwright'
-          const taggedPayload = ArticleUtility.generateTestArticle(workerInfo, 'tag-test');
+          const taggedPayload = ArticleFactory.generateTestArticle(workerInfo, 'tag-test');
           taggedPayload.tagList = [tagToSelect];
 
-          const otherPayload = ArticleUtility.generateTestArticle(workerInfo, 'other-tag-test');
+          const otherPayload = ArticleFactory.generateTestArticle(workerInfo, 'other-tag-test');
           otherPayload.tagList = ['typescript'];
 
           [taggedArticle, otherArticle] = await Promise.all([

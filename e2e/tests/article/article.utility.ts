@@ -1,17 +1,14 @@
 import { AuthUtility } from "@auth/auth.utility";
-import { Page, TestInfo } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
 import { Article, CreateArticleRequest } from "./models/article.model";
-import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
-import { ArticleFactory } from "./article.factory";
-import { FRONT_URLS } from "@shared/utilities/url-front.utility";
 
 export class ArticleUtility {
   static async createArticleViaApi(token: string, articlePayload: CreateArticleRequest): Promise<Article> {
     const apiContext = await AuthUtility.createAuthenticatedApiContext(token);
 
     try {
-      const response = await apiContext.post(API_URLS.ARTICLES.CREATION, {
+      const response = await apiContext.post(API_URLS.ARTICLES.SAVE(), {
         data: { article: articlePayload },
       });
 
@@ -47,12 +44,12 @@ export class ArticleUtility {
       await this.deleteArticle(token, slug);
   }
 
-  static async mockCreateArticle(page: Page, { delay = 0, status = 201, body = {} } = {}): Promise<{
+  static async mockArticleSave(page: Page, { delay = 0, status = 201, body = {}, slug = '' } = {}): Promise<{
     getCallCount: () => number,
   }> {
     let callCount = 0;
-    await page.route(mockApiUrl(API_URLS.ARTICLES.CREATION), async route => {
-      callCount++;
+    await page.route(mockApiUrl(API_URLS.ARTICLES.SAVE(slug)), async route => {
+        callCount++;
 
       if (delay) await new Promise(r => setTimeout(r, delay));
 
@@ -61,7 +58,7 @@ export class ArticleUtility {
         contentType: 'application/json',
         body: JSON.stringify(body),
       });
-    });
+    },);
 
     return {
       getCallCount: () => callCount,
@@ -88,12 +85,6 @@ export class ArticleUtility {
         body: JSON.stringify(body),
       });
     });
-  }
-
-  static generateTestArticle(workerInfo: TestInfo, title: string): CreateArticleRequest {
-    const shardIndex = workerInfo.config.shard?.current ?? 1;
-    const id = CompositeIdFactory.create(title, 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
-    return ArticleFactory.buildArticlePayload(id);
   }
 
 }

@@ -45,6 +45,6 @@ export class HomePage {
   }
 
   async expectLoadingIndicatorVisible(): Promise<void> {
-  await expect(this.page.getByText('Loading articles...')).toBeVisible();
+    await expect(this.page.getByText('Loading articles...')).toBeVisible();
   }
 }

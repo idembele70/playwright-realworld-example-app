@@ -6,7 +6,7 @@ export const FRONT_URLS_REG_EXP = {
   HOME: new RegExp(`^${ESCAPED_FRONT_BASE_URL}$`),
   LOGIN: new RegExp(`^${ESCAPED_FRONT_BASE_URL}login$`),
   REGISTER: new RegExp(`^${ESCAPED_FRONT_BASE_URL}register$`),
-  ARTICLE_EDITOR: new RegExp(`^${ESCAPED_FRONT_BASE_URL}editor$`),
+  ARTICLE_EDITOR: (slug?:string) => new RegExp(`^${ESCAPED_FRONT_BASE_URL}editor${slug ? `/${slug}` : ''}$`),
   ARTICLE_DETAILS: new RegExp(`^${ESCAPED_FRONT_BASE_URL}article/[a-zA-Z0-9-]+/?$`),
 } as const;
 

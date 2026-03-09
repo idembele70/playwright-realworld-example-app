@@ -84,8 +84,7 @@ export class AuthUtility {
   }
 
   static async createAuthToken(workerInfo: TestInfo): Promise<string> {
-    const shardIndex = workerInfo.config.shard?.current ?? 1;
-    const id = CompositeIdFactory.create('auth-fixture', 'shard', shardIndex, 'worker', workerInfo.parallelIndex);
+    const id = CompositeIdFactory.fromExecutionInfo(workerInfo, 'auth-fixture');
     const user = AuthFactory.buildUser(id);
     return await AuthUtility.login(user);
   }

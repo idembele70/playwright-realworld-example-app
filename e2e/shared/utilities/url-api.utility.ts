@@ -10,7 +10,7 @@ export const API_URLS_REGEX = {
 
 export const API_URLS = {
   ARTICLES: {
-    CREATION: 'articles/',
+    SAVE: (slug?: string) => `articles/${slug ?? ''}`,
     DELETION: (slug: string) => `articles/${slug}`,
     GET_LIST: ({ limit = 10, offset = 0 } = {}) => `articles?limit=${limit}&offset=${offset}`
   },

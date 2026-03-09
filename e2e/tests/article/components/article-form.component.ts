@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
-import { Article, CreateArticleRequest } from "../models/article.model";
 import { expect } from "../fixtures/article-creation.fixture";
+import { Article, CreateArticleRequest } from "../models/article.model";
 
 export class ArticleFormComponent {
   readonly container: Locator;
@@ -21,7 +21,7 @@ export class ArticleFormComponent {
     this.tagListItem = this.container.locator('.tag-pill');
   }
 
-  async fill(articlePayload: CreateArticleRequest): Promise<void> {
+  async fill(articlePayload: Partial<CreateArticleRequest>): Promise<void> {
     if (articlePayload?.title !== undefined) {
       await this.titleInput.fill(articlePayload.title);
     }
@@ -39,8 +39,58 @@ export class ArticleFormComponent {
     }
   }
 
+  async isReady(article: Partial<Article>): Promise<void> {
+    const checks: Promise<unknown>[] = [];
+
+    if (article.title) {
+      checks.push(expect(this.titleInput).toHaveValue(article.title));
+    }
+
+    if (article.description) {
+      checks.push(expect(this.descriptionInput).toHaveValue(article.description));
+    }
+
+    if (article.body) {
+      checks.push(expect(this.bodyTextArea).toHaveValue(article.body));
+    }
+
+    if (article.tagList) {
+      checks.push(expect(this.tagListItem).toHaveText(article.tagList));
+    }
+
+    await Promise.all(checks);
+  }
+
   async submit(): Promise<void> {
     await this.publishButton.click();
+  }
+
+  async submitTwice(): Promise<void> {
+    await this.publishButton.click();
+    await this.publishButton.click({ force: true });
+  }
+
+  async updateTagList(
+    tagList: string[],
+    options: { mode?: 'append' | 'replace' } = {}
+  ): Promise<void> {
+
+    const { mode = 'append' } = options;
+
+    if (mode === 'replace') {
+      const deleteButtons = this.tagListItem.locator('i');
+
+      const count = await deleteButtons.count();
+
+      for (let i = 0; i < count; i++) {
+        await deleteButtons.first().click();
+      }
+    }
+
+    for (const tag of tagList) {
+      await this.tagListInput.fill(tag);
+      await this.tagListInput.press('Enter');
+    }
   }
 
   async expectValues(articlePayload: CreateArticleRequest): Promise<void> {
