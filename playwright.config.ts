@@ -2,7 +2,7 @@ import { ENV, ENV_CONFIG } from '@config/env.config';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './e2e/tests',
+  testDir: './tests/features',
   tsconfig: './tsconfig.json',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -25,7 +25,7 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: ENV_CONFIG[ENV].baseURL.front,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: process.env.CI ? 'retain-on-first-failure' : 'off',
     headless: true,
   },
   /* Configure projects for major browsers */
