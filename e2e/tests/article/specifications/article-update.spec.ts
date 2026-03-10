@@ -4,6 +4,8 @@ import { articleUpdateTest } from "@article/fixtures/article-update.fixture";
 import { ArticleEditorPage } from "@article/pages/article-editor.page";
 import { AuthFactory } from "@auth/auth.factory";
 import { AuthUtility } from "@auth/auth.utility";
+import { Page } from "@playwright/test";
+import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
 import { SqlInjectionPayloadFactory } from "@shared/factories/sql-injection-payload.factory";
 import { XssPayloadFactory } from "@shared/factories/xss-payload-factory";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
@@ -164,8 +166,10 @@ articleUpdateTest.describe('Article - Update', { tag: '@article' }, () => {
     articleUpdateTest(
       "Trying to access another user's article editor redirects to home page",
       { tag: '@regression' },
-      async ({ article, page, registerPage, articleEditorPage, homePage, token }) => {
-        const wrongAuthor = AuthFactory.buildUser('modify-article-user');
+      async ({ article, page, registerPage, articleEditorPage, homePage, token }, testInfo) => {
+        const wrongAuthor = AuthFactory.buildUser(
+          CompositeIdFactory.fromExecutionInfo(testInfo, 'wrong-author-modify-article')
+        );
         try {
           await AuthUtility.clearAuth(page);
           await registerPage.goto();
@@ -344,11 +348,16 @@ articleUpdateTest.describe('Article - Update', { tag: '@article' }, () => {
         }
       }
     );
-    articleUpdateTest.skip(
+    articleUpdateTest.fixme(
       'unauthenticated user trying to update an article is redirected to the home page',
-      { tag: '@smoke' },
+      {
+        tag: '@smoke',
+        annotation: {
+          type: 'issue',
+          description: 'Known bug: unauthenticated user access to editor redirects to a blank page.',
+        },
+      },
       async ({ page, homePage, token, article }) => {
-        articleUpdateTest.fixme(true, 'User is not redirect to login page but to a blank page');
         try {
           const articleEditorPage = new ArticleEditorPage(page);
           await homePage.goToViaUrl();
@@ -375,23 +384,23 @@ articleUpdateTest.describe('Article - Update', { tag: '@article' }, () => {
           testInfo,
           'concurrent-update-2'
         );
+        let page2: Page;
         try {
-          const page2 = await context.newPage();
+          page2 = await context.newPage();
           const editor2 = new ArticleEditorPage(page2);
 
           await editor2.gotoArticle(article.slug);
-          
+
           await editor1.form.fill(payload1);
           await editor2.form.fill(payload2);
-          
+
           await editor1.form.submit();
           await editor2.form.submit();
-          
+
           await articleDetailsPage.expectArticleVisible(payload1);
           await editor2.expectOnEditorPage(article.slug);
-          await page2.close();
-          await context.close();
         } finally {
+          await page2.close();
           await ArticleUtility.deleteArticleIfCreated(token, articleDetailsPage.getSlugFromUrl());
         }
       }
