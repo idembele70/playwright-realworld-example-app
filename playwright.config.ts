@@ -2,7 +2,7 @@ import { ENV, ENV_CONFIG } from '@config/env.config';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './e2e/tests',
+  testDir: './tests/features',
   tsconfig: './tsconfig.json',
   /* Run tests in files in parallel */
   fullyParallel: true,

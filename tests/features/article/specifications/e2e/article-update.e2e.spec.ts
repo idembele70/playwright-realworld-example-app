@@ -10,7 +10,7 @@ import { SqlInjectionPayloadFactory } from "@shared/factories/sql-injection-payl
 import { XssPayloadFactory } from "@shared/factories/xss-payload-factory";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
 
-articleUpdateTest.describe('Article - Update', { tag: '@article' }, () => {
+articleUpdateTest.describe('Article - Update', { tag: ['@article', '@e2e'] }, () => {
   articleUpdateTest.describe('Happy', { tag: '@happy' }, () => {
     articleUpdateTest(
       'Update article with valid data',

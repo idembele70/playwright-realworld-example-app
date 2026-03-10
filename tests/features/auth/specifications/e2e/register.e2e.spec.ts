@@ -1,7 +1,7 @@
 import { AuthUtility } from "@auth/auth.utility";
 import { registerTest } from "@auth/fixtures/register.fixture";
 
-registerTest.describe('Authentication - Register', { tag: '@auth' }, () => {
+registerTest.describe('Authentication - Register', { tag: ['@auth', '@e2e'] }, () => {
 
   registerTest.describe('Happy', { tag: '@happy' }, () => {
     registerTest.afterEach(async ({ user }) => {

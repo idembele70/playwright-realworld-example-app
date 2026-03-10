@@ -11,7 +11,7 @@ import { SqlInjectionPayloadFactory } from "@shared/factories/sql-injection-payl
 import { XssPayloadFactory } from "@shared/factories/xss-payload-factory";
 import { API_URLS, mockApiUrl } from "@shared/utilities/url-api.utility";
 
-articleCreationTest.describe('Article - Creation', { tag: '@article' }, () => {
+articleCreationTest.describe('Article - Creation', { tag: ['@article', '@e2e'] }, () => {
   articleCreationTest.describe('Happy', { tag: '@happy' }, () => {
     articleCreationTest.afterEach(async ({ articleDetailsPage, token }) => {
       const slug = articleDetailsPage.getSlugFromUrl();

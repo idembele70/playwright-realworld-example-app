@@ -3,7 +3,7 @@ import { ArticleUtility } from "@article/article.utility";
 import { articleReadTest, expect } from "@article/fixtures/article-read.fixture";
 import { Article } from "@article/models/article.model";
 
-articleReadTest.describe('Article - Read', { tag: '@article' }, () => {
+articleReadTest.describe('Article - Read', { tag: ['@article', '@e2e'] }, () => {
   articleReadTest.describe('Happy', { tag: '@Happy' }, () => {
     articleReadTest('Display article list', { tag: '@smoke' },
       async ({ articlePayload, token, homePage }) => {
