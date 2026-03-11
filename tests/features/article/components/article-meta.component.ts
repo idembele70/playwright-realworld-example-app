@@ -14,7 +14,7 @@ export class ArticleMetaComponent {
   }
 
   async deleteArticle(): Promise<void> {
-    this.deleteArticleButton.click();
+   await this.deleteArticleButton.click();
   }
 
   async expectDeleteButtonContainDisabledClass(): Promise<void> {
