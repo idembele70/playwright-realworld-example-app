@@ -4,7 +4,7 @@ import { deleteArticleTest } from "@article/fixtures/article-delete.fixture";
 import { AuthFactory } from "@auth/auth.factory";
 import { AuthUtility } from "@auth/auth.utility";
 import { CompositeIdFactory } from "@shared/factories/composite-id.factory";
-deleteArticleTest.use({ headless: false })
+
 deleteArticleTest.describe('Article - Delete', { tag: ['@article', '@e2e'] }, () => {
   deleteArticleTest.describe('Happy', { tag: '@happy' }, () => {
     deleteArticleTest(
