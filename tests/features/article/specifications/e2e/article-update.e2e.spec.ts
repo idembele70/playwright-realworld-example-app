@@ -375,7 +375,7 @@ articleUpdateTest.describe('Article - Update', { tag: ['@article', '@e2e'] }, ()
   articleUpdateTest.describe('Edge', { tag: '@edge' }, () => {
     articleUpdateTest(
       'handle concurrent updates on the same article',
-      async ({ context, article, page: page1, token, articleEditorPage: editor1, articleDetailsPage }, testInfo) => {
+      async ({ context, article, token, articleEditorPage: editor1, articleDetailsPage }, testInfo) => {
         const payload1 = ArticleFactory.generateTestArticle(
           testInfo,
           'concurrent-update-1'
