@@ -388,16 +388,12 @@ articleUpdateTest.describe('Article - Update', { tag: ['@article', '@e2e'] }, ()
         try {
           page2 = await context.newPage();
           const editor2 = new ArticleEditorPage(page2);
-
           await editor2.gotoArticle(article.slug);
 
-          await editor1.form.fill(payload1);
-          await editor2.form.fill(payload2);
-
-          await editor1.form.submit();
-          await editor2.form.submit();
-
+          await editor1.updateArticle(payload1);
           await articleDetailsPage.expectArticleVisible(payload1);
+          
+          await editor2.updateArticle(payload2);
           await editor2.expectOnEditorPage(article.slug);
         } finally {
           await page2.close();
