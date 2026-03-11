@@ -22,10 +22,16 @@ export class ArticlePreviewComponent {
     await expect(articlePreviewRow.getByRole('listitem')).toHaveText(article.tagList);
   }
 
+  async expectHidden(slug: string): Promise<void> {
+    const articleRow = this.articlePreviewRowList.filter({
+      has: this.page.locator((`a[href$='${slug}']`)),
+    });
+    await expect(articleRow).toBeHidden();
+  }
+
   async toHaveCount(count: number): Promise<void> {
     await expect(this.articlePreviewRowList).toHaveCount(count);
   }
-
 
   async getSlug(title: string): Promise<null | string> {
     if (FRONT_URLS_REG_EXP.HOME.test(this.page.url()) === false) {

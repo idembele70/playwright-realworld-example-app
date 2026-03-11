@@ -34,6 +34,10 @@ export class ArticleFactory {
     }
   }
 
+  static buildArticleComment(id: string): string {
+    return `Comment-${id}`;
+  }
+
   static buildArticleTagList(parallelIndex: number, length: number): string[] {
     return Array.from({ length }, (_, idx) => `tag-worker-${parallelIndex}-${idx}`);
   }

@@ -49,7 +49,7 @@ export class ArticleUtility {
   }> {
     let callCount = 0;
     await page.route(mockApiUrl(API_URLS.ARTICLES.SAVE(slug)), async route => {
-        callCount++;
+      callCount++;
 
       if (delay) await new Promise(r => setTimeout(r, delay));
 
@@ -86,5 +86,13 @@ export class ArticleUtility {
       });
     });
   }
-
+  static async mockArticleDelete(page: Page, { status = 204, body = {}, slug = '' } = {}): Promise<void> {
+    await page.route(mockApiUrl(API_URLS.ARTICLES.DELETION(slug)), async route => {
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify(body),
+      });
+    });
+  }
 }

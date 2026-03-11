@@ -1,4 +1,4 @@
-import { ArticleFormComponent } from "@article/components/article-form.component";
+import { ArticleFormComponent } from "@article/components/article-editor-form.component";
 import { Article, CreateArticleRequest } from "@article/models/article.model";
 import { ValidationErrorType, ValidatorErrorField } from "@article/models/validation-error.model";
 import { Locator, Page, expect } from "@playwright/test";
