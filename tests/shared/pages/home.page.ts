@@ -47,4 +47,15 @@ export class HomePage {
   async expectLoadingIndicatorVisible(): Promise<void> {
     await expect(this.page.getByText('Loading articles...')).toBeVisible();
   }
+
+  async goToArticleDetailsPage(slug: string): Promise<void> {
+    await this.page.goto(`${FRONT_URLS.ARTICLE_DETAILS}/${slug}`);
+  }
+
+  async expectArticleDeleteSuccess(slug: string): Promise<void> {
+    await this.expectOnHomePage();
+    await this.goToArticleDetailsPage(slug);
+    await this.expectOnHomePage();
+    await this.articlePreview.expectHidden(slug);
+  }
 }

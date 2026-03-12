@@ -1,4 +1,7 @@
-import { CreateArticleRequest } from "@article/models/article.model";
+import { ArticleCommentFormComponent } from "@article/components/article-comment-form.component";
+import { ArticleCommentComponent } from "@article/components/article-comment.component";
+import { ArticleMetaComponent } from "@article/components/article-meta.component";
+import { Article, CreateArticleRequest } from "@article/models/article.model";
 import { Locator, Page, TestInfo, expect } from "@playwright/test";
 import { XssPayloadFactory } from "@shared/factories/xss-payload-factory";
 import { HeaderComponent } from "@shared/layouts/header.component";
@@ -6,17 +9,22 @@ import { UiUtilities } from "@shared/utilities/ui-utilities";
 import { FRONT_URLS, FRONT_URLS_REG_EXP } from "@shared/utilities/url-front.utility";
 
 export class ArticleDetailsPage {
-  readonly urlRegExp = FRONT_URLS_REG_EXP.ARTICLE_DETAILS;
   readonly header: HeaderComponent;
 
   private readonly container: Locator;
 
   readonly bannerWrapper: Locator;
   readonly title: Locator;
-  readonly bannerDeleteArticleButton: Locator;
+  readonly bannerArticleMeta: ArticleMetaComponent;
 
   readonly content: Locator;
   readonly tagList: Locator;
+
+  readonly actionsWrapper: Locator;
+  readonly actionsArticleMeta: ArticleMetaComponent;
+
+  readonly commentForm: ArticleCommentFormComponent;
+  readonly commentRow: ArticleCommentComponent;
 
   constructor(private readonly page: Page) {
     this.header = new HeaderComponent(this.page);
@@ -25,14 +33,24 @@ export class ArticleDetailsPage {
 
     this.bannerWrapper = this.container.locator('.banner');
     this.title = this.bannerWrapper.getByRole('heading');
-    this.bannerDeleteArticleButton = this.bannerWrapper.getByRole('button', { name: 'Delete Article' });
+    this.bannerArticleMeta = new ArticleMetaComponent(this.bannerWrapper);
 
     this.content = this.container.locator('.article-content');
     this.tagList = this.container.locator('ul.tag-list');
+
+    this.actionsWrapper = this.container.locator('.article-actions');
+    this.actionsArticleMeta = new ArticleMetaComponent(this.actionsWrapper);
+
+    this.commentForm = new ArticleCommentFormComponent(this.page);
+    this.commentRow = new ArticleCommentComponent(this.page);
   }
 
   async goToViaUrl(slug: string): Promise<void> {
     await this.page.goto(`${FRONT_URLS.ARTICLE_DETAILS}/${slug}`);
+  }
+
+  async expectOnArticleDetailsPage(slug: string): Promise<void> {
+    await expect(this.page).toHaveURL(FRONT_URLS_REG_EXP.ARTICLE_DETAILS(slug));
   }
 
   async expectArticleTitle(title: string | RegExp): Promise<void> {
@@ -48,7 +66,11 @@ export class ArticleDetailsPage {
   }
 
   async deleteArticleFromBanner(): Promise<void> {
-    await this.bannerDeleteArticleButton.click();
+    await this.bannerArticleMeta.deleteArticle();
+  }
+
+  async deleteArticleFromActions(): Promise<void> {
+    await this.actionsArticleMeta.deleteArticle();
   }
 
   getSlugFromUrl(): string | undefined {
@@ -83,5 +105,33 @@ export class ArticleDetailsPage {
 
   async expectSanitizedContent(payload: string): Promise<void> {
     await expect(this.container.getByText(payload)).toHaveCount(0);
+  }
+
+  async expectArticleDeleteError(article: Article): Promise<void> {
+    await this.expectOnArticleDetailsPage(article.slug);
+    await this.expectArticleTitle(article.title);
+    await Promise.any([
+      this.bannerArticleMeta.expectDeleteButtonContainDisabledClass(),
+      this.actionsArticleMeta.expectDeleteButtonContainDisabledClass(),
+    ]);
+  }
+
+  async expectNonAuthorCannotEditOrDelete(): Promise<void> {
+    await this.bannerArticleMeta.expectEditArticleButtonHidden();
+    await this.bannerArticleMeta.expectDeleteArticleButtonHidden();
+    await this.actionsArticleMeta.expectEditArticleButtonHidden();
+    await this.actionsArticleMeta.expectDeleteArticleButtonHidden();
+  }
+
+  async expectNonAuthorCanFollowAndAddToFavorite(article: Article): Promise<void> {
+    await this.bannerArticleMeta.expectFollowAuthorButtonVisible(article.author);
+    await this.bannerArticleMeta.expectAddToFavoriteButtonVisible(article.favoritesCount);
+    await this.actionsArticleMeta.expectFollowAuthorButtonVisible(article.author);
+    await this.actionsArticleMeta.expectAddToFavoriteButtonVisible(article.favoritesCount);
+  }
+
+  async addComment(comment: string): Promise<void> {
+    await this.commentForm.fillWriteCommentTextArea(comment);
+    await this.commentForm.clickPostCommentButton();
   }
 }
